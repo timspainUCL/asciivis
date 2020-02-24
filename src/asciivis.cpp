@@ -15,6 +15,10 @@ AsciiVis::AsciiVis(int line_length, int n_lines, std::string bg_character)
 	characters = std::vector<std::string>(line_length*n_lines, bg_character);
 }
 
+AsciiVis::AsciiVis(int line_length, int n_lines)
+: AsciiVis(line_length, n_lines, " ") {
+}
+
 int round_and_clamp(double x, double mmin, double mmax) {
 	return static_cast<int>(std::max(mmin, std::min(mmax, x)));
 }

@@ -43,11 +43,11 @@ TEST_CASE("Visualise array of strings, compare byte stream", "[Tests]") {
 TEST_CASE("Add entities, compare byte stream", "[Tests]") {
 	int dx = 5;
 	int dy = 5;
-	AsciiVis vis(dx, dy, ".");
+	AsciiVis vis(dx, dy, "."); // UTF-8 0x2e
 	vis.put_obstacle("#", 0, 0, dx, 1);
-	vis.put_obstacle("#", 0, dy, dx, -1);
-	vis.put_agent("☺", 1, 1);
-	vis.put_agent("☻", 3, 3);
+	vis.put_obstacle("#", 0, dy, dx, -1); //UTF-8 0x23
+	vis.put_agent("☺", 1, 1); // UTF-8 0xe298ba
+	vis.put_agent("☻", 3, 3); // UTF-8 0xe298bb
 
 	std::stringstream ss = std::stringstream();
 	ss << vis;
