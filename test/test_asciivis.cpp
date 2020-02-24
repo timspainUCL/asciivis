@@ -14,6 +14,8 @@
 
 #include "../include/asciivis.hpp"
 
+bool test_asciivis_vs_bytearray(const AsciiVis &as, char* tr);
+
 TEST_CASE("Visualise array of strings, compare byte stream", "[Tests]") {
 	// C array of C strings
 	char const *inchars[] = {"#", "#", "#", "#", "#",
@@ -49,20 +51,56 @@ TEST_CASE("Add entities, compare byte stream", "[Tests]") {
 	vis.put_agent("☺", 1, 1); // UTF-8 0xe298ba
 	vis.put_agent("☻", 3, 3); // UTF-8 0xe298bb
 
-	std::stringstream ss = std::stringstream();
-	ss << vis;
-
 	// Check the stream byte by byte
 	char target_bytes[] = {	'\x23', '\x23', '\x23', '\x23', '\x23', '\x0a',
 							'\x2e', '\xe2', '\x98', '\xba', '\x2e', '\x2e', '\x2e', '\x0a',
 							'\x2e', '\x2e', '\x2e', '\x2e', '\x2e', '\x0a',
 							'\x2e', '\x2e', '\x2e', '\xe2', '\x98', '\xbb', '\x2e', '\x0a',
 							'\x23', '\x23', '\x23', '\x23', '\x23', '\x0a'};
-	char *tr = target_bytes;
-	for (char ch; ss.get(ch); tr++) {
-		INFO("The target is " << int(*tr) << " and the value is " << int(ch));
-		REQUIRE(int(ch) == int(*tr));
-	}
+
+	test_asciivis_vs_bytearray(vis, target_bytes);
 }
 
+TEST_CASE("Draw obstacles in every orientation", "[Tests]") {
+	int nx = 5;
+	int ny = 5;
 
+	char target_bytes[] = {
+			'\x2e', '\x2e', '\x2e', '\x2e', '\x2e', '\x0a',
+			'\x2e', '\x23', '\x23', '\x23', '\x2e', '\x0a',
+			'\x2e', '\x23', '\x23', '\x23', '\x2e', '\x0a',
+			'\x2e', '\x23', '\x23', '\x23', '\x2e', '\x0a',
+			'\x2e', '\x2e', '\x2e', '\x2e', '\x2e', '\x0a',
+	};
+
+	AsciiVis pp(nx, ny, ".");
+	pp.put_obstacle("#", 1, 1, 3, 3);
+	test_asciivis_vs_bytearray(pp, target_bytes);
+
+	AsciiVis pm(nx, ny, ".");
+	pm.put_obstacle("#", 1, 4, 3, -3);
+	test_asciivis_vs_bytearray(pm, target_bytes);
+
+	AsciiVis mp(nx, ny, ".");
+	mp.put_obstacle("#", 4, 1, -3, 3);
+	test_asciivis_vs_bytearray(mp, target_bytes);
+
+	AsciiVis mm(nx, ny, ".");
+	mm.put_obstacle("#", 4, 4, -3, -3);
+	test_asciivis_vs_bytearray(mm, target_bytes);
+
+}
+
+bool test_asciivis_vs_bytearray(const AsciiVis &as, char* tr) {
+	bool is_good = true;
+
+	std::stringstream ss = std::stringstream();
+	ss << as;
+
+	for (char ch; ss.get(ch); tr++) {
+		INFO("The target is " << int(*tr) << " and the value is " << int(ch));
+		is_good = is_good && (int(ch) == int(*tr));
+		REQUIRE(is_good);
+	}
+	return is_good;
+}
